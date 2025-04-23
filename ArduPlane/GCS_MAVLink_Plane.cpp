@@ -1075,6 +1075,7 @@ void GCS_MAVLINK_Plane::handle_message(const mavlink_message_t &msg)
 } // end handle mavlink
 
 void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
+
     {
         // Only allow companion computer (or other external controller) to
         // control attitude in GUIDED mode.  We DON'T want external control
@@ -1105,41 +1106,71 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
         Quaternion q(att_target.q[0], att_target.q[1],
                 att_target.q[2], att_target.q[3]);
 
-        // NOTE: att_target.type_mask is inverted for easier interpretation
-        att_target.type_mask = att_target.type_mask ^ 0xFF;
+        
+        // Rate control
+        ATTITUDE_TARGET_TYPEMASK_ATTITUDE_IGNORE = 0b10111000 // ignore everything except rate and throttle
+        if(att_target.type_mask & ATTITUDE_TARGET_TYPEMASK_ATTITUDE_IGNORE == 0b10111000):
 
-        uint8_t attitude_mask = att_target.type_mask & 0b10000111; // q plus rpy
+            print("rate cmd")
 
-        uint32_t now = AP_HAL::millis();
-        if ((attitude_mask & 0b10000001) ||    // partial, including roll
-                (attitude_mask == 0b10000000)) { // all angles
-            plane.guided_state.forced_rpy_cd.x = degrees(q.get_euler_roll()) * 100.0f;
+            desired_rates.x = att_target.body_roll_rate
+        
+            desired_rates.y = att_target.body_pitch_rate
+    
+            desired_rates.z = att_target.body_yaw_rate
 
-            // Update timer for external roll to the nav control
-            plane.guided_state.last_forced_rpy_ms.x = now;
-        }
+            const float speed_scaler = plane.get_speed_scaler();
+  
+            // call to rate controllers
+            SRV_Channels::set_output_scaled(SRV_Channel::k_aileron,  plane.rollController.get_rate_out(desired_rates.x, speed_scaler));
+            SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, plane.pitchController.get_rate_out(desired_rates.y, speed_scaler));
+            output_rudder_and_steering(plane.yawController.get_rate_out(desired_rates.z,  speed_scaler, false));
 
-        if ((attitude_mask & 0b10000010) ||    // partial, including pitch
-                (attitude_mask == 0b10000000)) { // all angles
-            plane.guided_state.forced_rpy_cd.y = degrees(q.get_euler_pitch()) * 100.0f;
-
-            // Update timer for external pitch to the nav control
-            plane.guided_state.last_forced_rpy_ms.y = now;
-        }
-
-        if ((attitude_mask & 0b10000100) ||    // partial, including yaw
-                (attitude_mask == 0b10000000)) { // all angles
-            plane.guided_state.forced_rpy_cd.z = degrees(q.get_euler_yaw()) * 100.0f;
-
-            // Update timer for external yaw to the nav control
-            plane.guided_state.last_forced_rpy_ms.z = now;
-        }
-        if (att_target.type_mask & 0b01000000) { // throttle
             plane.guided_state.forced_throttle = att_target.thrust * 100.0f;
-
-            // Update timer for external throttle
             plane.guided_state.last_forced_throttle_ms = now;
-        }
+
+            acro_state.roll_active_last = roll_active;
+            acro_state.pitch_active_last = pitch_active;
+            acro_state.yaw_active_last = yaw_active;
+
+        else:
+
+            // NOTE: att_target.type_mask is inverted for easier interpretation
+            att_target.type_mask = att_target.type_mask ^ 0xFF;
+
+
+            uint8_t attitude_mask = att_target.type_mask & 0b10000111; // q plus rpy
+
+            uint32_t now = AP_HAL::millis();
+            if ((attitude_mask & 0b10000001) ||    // partial, including roll
+                    (attitude_mask == 0b10000000)) { // all angles
+                plane.guided_state.forced_rpy_cd.x = degrees(q.get_euler_roll()) * 100.0f;
+
+                // Update timer for external roll to the nav control
+                plane.guided_state.last_forced_rpy_ms.x = now;
+            }
+
+            if ((attitude_mask & 0b10000010) ||    // partial, including pitch
+                    (attitude_mask == 0b10000000)) { // all angles
+                plane.guided_state.forced_rpy_cd.y = degrees(q.get_euler_pitch()) * 100.0f;
+
+                // Update timer for external pitch to the nav control
+                plane.guided_state.last_forced_rpy_ms.y = now;
+            }
+
+            if ((attitude_mask & 0b10000100) ||    // partial, including yaw
+                    (attitude_mask == 0b10000000)) { // all angles
+                plane.guided_state.forced_rpy_cd.z = degrees(q.get_euler_yaw()) * 100.0f;
+
+                // Update timer for external yaw to the nav control
+                plane.guided_state.last_forced_rpy_ms.z = now;
+            }
+            if (att_target.type_mask & 0b01000000) { // throttle
+                plane.guided_state.forced_throttle = att_target.thrust * 100.0f;
+
+                // Update timer for external throttle
+                plane.guided_state.last_forced_throttle_ms = now;
+            }
     }
 
 void GCS_MAVLINK_Plane::handle_set_position_target_local_ned(const mavlink_message_t &msg)
