@@ -1126,11 +1126,11 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
             //output_rudder_and_steering(plane.yawController.get_rate_out(b_y_r,  speed_scaler, false));
 
             plane.guided_state.forced_throttle = att_target.thrust * 100.0f;
-            plane.guided_state.last_forced_throttle_ms = now;
+            //plane.guided_state.last_forced_throttle_ms = now;
 
-            acro_state.roll_active_last = roll_active;
-            acro_state.pitch_active_last = pitch_active;
-            acro_state.yaw_active_last = yaw_active;
+            //acro_state.roll_active_last = roll_active;
+            //acro_state.pitch_active_last = pitch_active;
+            //acro_state.yaw_active_last = yaw_active;
         }
 
         else{
