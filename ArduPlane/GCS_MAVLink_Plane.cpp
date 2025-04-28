@@ -1108,7 +1108,8 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
 
         
         // Rate control
-        if(att_target.type_mask & 0b10111000 == 0b10111000):
+        //if(att_target.type_mask & 0b10111000 == 0b10111000):
+        if(True):
 
             print("rate cmd")
 
