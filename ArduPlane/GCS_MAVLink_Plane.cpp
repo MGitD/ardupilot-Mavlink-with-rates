@@ -1109,15 +1109,15 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
         
         // Rate control
         //if(att_target.type_mask & 0b10111000 == 0b10111000):
-        if(true):
+        if(1){
 
             print("rate cmd")
 
-            desired_rates.x = att_target.body_roll_rate
+            desired_rates.x = att_target.body_roll_rate;
         
-            desired_rates.y = att_target.body_pitch_rate
+            desired_rates.y = att_target.body_pitch_rate;
     
-            desired_rates.z = att_target.body_yaw_rate
+            desired_rates.z = att_target.body_yaw_rate;
 
             const float speed_scaler = plane.get_speed_scaler();
   
@@ -1132,8 +1132,9 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
             acro_state.roll_active_last = roll_active;
             acro_state.pitch_active_last = pitch_active;
             acro_state.yaw_active_last = yaw_active;
+        }
 
-        else:
+        else{
 
             // NOTE: att_target.type_mask is inverted for easier interpretation
             att_target.type_mask = att_target.type_mask ^ 0xFF;
@@ -1171,6 +1172,7 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
                 // Update timer for external throttle
                 plane.guided_state.last_forced_throttle_ms = now;
             }
+    }
     }
 
 void GCS_MAVLINK_Plane::handle_set_position_target_local_ned(const mavlink_message_t &msg)
