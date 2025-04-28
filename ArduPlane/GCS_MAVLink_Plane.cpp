@@ -1111,7 +1111,6 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
         //if(att_target.type_mask & 0b10111000 == 0b10111000):
         if(1){
 
-            print("rate cmd")
 
             desired_rates.x = att_target.body_roll_rate;
         
