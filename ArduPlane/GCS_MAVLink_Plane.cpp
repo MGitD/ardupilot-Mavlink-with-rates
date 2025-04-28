@@ -1116,7 +1116,7 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
         
             float b_p_r = att_target.body_pitch_rate;
     
-            float b_y_r = att_target.body_yaw_rate;
+            //float b_y_r = att_target.body_yaw_rate;
 
             const float speed_scaler = plane.get_speed_scaler();
   
