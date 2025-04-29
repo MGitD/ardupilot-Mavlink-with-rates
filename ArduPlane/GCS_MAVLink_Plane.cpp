@@ -1,6 +1,7 @@
 #include "GCS_MAVLink_Plane.h"
 
 #include "Plane.h"
+#include "mode.h"
 #include <AP_RPM/AP_RPM_config.h>
 #include <AP_Airspeed/AP_Airspeed_config.h>
 #include <AP_EFI/AP_EFI_config.h>
@@ -1127,7 +1128,6 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
             //SRV_Channels::set_output_scaled(SRV_Channel::k_rudder, plane.yawController.get_rate_out(b_y_r, speed_scaler));
 
             plane.guided_state.forced_throttle = att_target.thrust * 100.0f;
-            
             plane.guided_state.last_forced_throttle_ms = now;
         }
 
