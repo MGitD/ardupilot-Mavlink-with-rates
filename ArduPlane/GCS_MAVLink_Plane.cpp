@@ -1113,7 +1113,7 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
         if(1){
 
 
-            float roll_angle = att_target.body_roll_rate;
+            float b_r_r = att_target.body_roll_rate;
         
             float b_p_r = att_target.body_pitch_rate;
     
@@ -1122,12 +1122,10 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
             const float speed_scaler = plane.get_speed_scaler();
   
             // call to rate controllers
-            //SRV_Channels::set_output_scaled(SRV_Channel::k_aileron,  plane.rollController.get_rate_out(b_r_r, speed_scaler));
+            SRV_Channels::set_output_scaled(SRV_Channel::k_aileron,  plane.rollController.get_rate_out(b_r_r, speed_scaler));
             SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, plane.pitchController.get_rate_out(b_p_r, speed_scaler));
             //SRV_Channels::set_output_scaled(SRV_Channel::k_rudder, plane.yawController.get_rate_out(b_y_r, speed_scaler));
-            //output_rudder_and_steering(plane.yawController.get_rate_out(b_y_r,  speed_scaler, false));
 
-            plane.guided_state.forced_rpy_cd.x = roll_angle * (180.0f/3.14f) * 100.0f;
             plane.guided_state.forced_throttle = att_target.thrust * 100.0f;
             
             plane.guided_state.last_forced_throttle_ms = now;
