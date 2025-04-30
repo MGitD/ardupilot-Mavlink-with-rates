@@ -1107,11 +1107,13 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
         Quaternion q(att_target.q[0], att_target.q[1],
                 att_target.q[2], att_target.q[3]);
 
+        // NOTE: att_target.type_mask is inverted for easier interpretation
+        att_target.type_mask = att_target.type_mask ^ 0xFF;
+
         
-        // Rate control
-        //if(att_target.type_mask & 0b10111000 == 0b10111000):
         uint32_t now = AP_HAL::millis();
-        if(1){
+
+        if((att_target.type_mask & 0b00000111) == 7){ 
 
 
             float b_r_r = att_target.body_roll_rate;
@@ -1133,8 +1135,6 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
 
         else{
 
-            // NOTE: att_target.type_mask is inverted for easier interpretation
-            att_target.type_mask = att_target.type_mask ^ 0xFF;
 
 
             uint8_t attitude_mask = att_target.type_mask & 0b10000111; // q plus rpy
