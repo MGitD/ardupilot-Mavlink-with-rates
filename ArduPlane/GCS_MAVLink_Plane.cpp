@@ -1128,6 +1128,7 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
             SRV_Channels::set_output_scaled(SRV_Channel::k_aileron,  plane.rollController.get_rate_out(b_r_r, speed_scaler));
             SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, plane.pitchController.get_rate_out(b_p_r, speed_scaler));
             SRV_Channels::set_output_scaled(SRV_Channel::k_rudder, plane.yawController.get_rate_out(b_y_r, speed_scaler, false));
+            SRV_Channels::set_output_scaled(SRV_Channel::k_steering, plane.yawController.get_rate_out(b_y_r, speed_scaler, false));
 
             plane.guided_state.forced_throttle = att_target.thrust * 100.0f;
             plane.guided_state.last_forced_throttle_ms = now;
