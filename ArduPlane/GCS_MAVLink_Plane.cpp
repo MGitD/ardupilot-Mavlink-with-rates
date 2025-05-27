@@ -1120,18 +1120,16 @@ void GCS_MAVLINK_Plane::handle_set_attitude_target(const mavlink_message_t &msg)
         
             float b_p_r = att_target.body_pitch_rate;
     
-            //float b_y_r = att_target.body_yaw_rate;
+            float b_y_r = att_target.body_yaw_rate;
 
             const float speed_scaler = plane.get_speed_scaler();
   
             // call to rate controllers
             SRV_Channels::set_output_scaled(SRV_Channel::k_aileron,  plane.rollController.get_rate_out(b_r_r, speed_scaler));
             SRV_Channels::set_output_scaled(SRV_Channel::k_elevator, plane.pitchController.get_rate_out(b_p_r, speed_scaler));
-            //SRV_Channels::set_output_scaled(SRV_Channel::k_rudder, plane.yawController.get_rate_out(b_y_r, speed_scaler, false));
-            //SRV_Channels::set_output_scaled(SRV_Channel::k_steering, plane.yawController.get_rate_out(b_y_r, speed_scaler, false));
-            SRV_Channels::set_output_scaled(SRV_Channel::k_rudder, 2000.0f);
-            SRV_Channels::set_output_scaled(SRV_Channel::k_steering, 2000.0f);
-
+            SRV_Channels::set_output_scaled(SRV_Channel::k_rudder, plane.yawController.get_rate_out(b_y_r, speed_scaler, false));
+            SRV_Channels::set_output_scaled(SRV_Channel::k_steering, plane.yawController.get_rate_out(b_y_r, speed_scaler, false));
+ 
             plane.guided_state.forced_throttle = att_target.thrust * 100.0f;
             plane.guided_state.last_forced_throttle_ms = now;
         }
