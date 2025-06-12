@@ -485,13 +485,16 @@ int16_t Plane::calc_nav_yaw_coordinated()
     int16_t rudder_in = rudder_input();
 
     int16_t commanded_rudder;
+    int16_t commanded_yaw_rate;
     bool using_rate_controller = false;
 
     // Received an external msg that guides yaw in the last 3 seconds?
     if (control_mode->is_guided_mode() &&
             plane.guided_state.last_forced_rpy_ms.z > 0 &&
             millis() - plane.guided_state.last_forced_rpy_ms.z < 3000) {
-        commanded_rudder = plane.guided_state.forced_rpy_cd.z;
+        commanded_yaw_rate = plane.guided_state.forced_rpy_cd.z;
+        commanded_rudder = yawController.get_rate_out(commanded_yaw_rate,  speed_scaler, false);
+        using_rate_controller = true;
     } else if (autotuning && g.acro_yaw_rate > 0 && yawController.rate_control_enabled()) {
         // user is doing an AUTOTUNE with yaw rate control
         const float rudd_expo = rudder_in_expo(true);
